@@ -291,7 +291,7 @@ When adding new features, ensure:
 ## 📞 Security Contacts
 
 - **Security Issues**: security@dfsprophet.com
-- **Bug Reports**: [GitHub Issues](https://github.com/yourusername/dfs-prophet/issues)
+- **Bug Reports**: [GitHub Issues](https://github.com/iampique/dfs-prophet/issues)
 - **Responsible Disclosure**: Please report security vulnerabilities privately
 
 ## 📚 Security Resources

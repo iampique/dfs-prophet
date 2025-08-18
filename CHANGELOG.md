@@ -98,6 +98,6 @@ To add entries to this changelog:
 
 ## Links
 
-- [GitHub Releases](https://github.com/yourusername/dfs-prophet/releases)
+- [GitHub Releases](https://github.com/iampique/dfs-prophet/releases)
 - [Documentation](https://docs.dfsprophet.com)
 - [API Reference](https://docs.dfsprophet.com/api/)

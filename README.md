@@ -74,7 +74,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/dfs-prophet.git
+git clone https://github.com/iampique/dfs-prophet.git
 cd dfs-prophet
 
 # Create virtual environment and install dependencies
@@ -611,8 +611,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 - **Documentation**: [docs.dfsprophet.com](https://docs.dfsprophet.com)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/dfs-prophet/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/dfs-prophet/discussions)
+- **Issues**: [GitHub Issues](https://github.com/iampique/dfs-prophet/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/iampique/dfs-prophet/discussions)
 - **Email**: support@dfsprophet.com
 
 ---
@@ -621,8 +621,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ by the DFS Prophet Team**
 
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/dfs-prophet?style=social)](https://github.com/yourusername/dfs-prophet)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/dfs-prophet?style=social)](https://github.com/yourusername/dfs-prophet)
-[![GitHub issues](https://img.shields.io/github/issues/yourusername/dfs-prophet)](https://github.com/yourusername/dfs-prophet/issues)
+[![GitHub stars](https://img.shields.io/github/stars/iampique/dfs-prophet?style=social)](https://github.com/iampique/dfs-prophet)
+[![GitHub forks](https://img.shields.io/github/forks/iampique/dfs-prophet?style=social)](https://github.com/iampique/dfs-prophet)
+[![GitHub issues](https://img.shields.io/github/issues/iampique/dfs-prophet)](https://github.com/iampique/dfs-prophet/issues)
 
 </div>
