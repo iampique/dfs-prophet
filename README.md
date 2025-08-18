@@ -416,7 +416,7 @@ docker stats
 - [ ] Performance benchmarks met
 - [ ] Monitoring alerts configured
 - [ ] Documentation updated
-- [ ] Team trained on new deployment
+- [ ] Deployment team trained (if applicable)
 
 ---
 
@@ -550,7 +550,7 @@ python scripts/memory_analysis.py
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+Contributions are welcome! Please see the [Contributing Guide](CONTRIBUTING.md) for details.
 
 ### Development Setup
 
@@ -619,7 +619,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Made with ❤️ by the DFS Prophet Team**
+**Made with ❤️ by Pavan Vemuri**
 
 [![GitHub stars](https://img.shields.io/github/stars/iampique/dfs-prophet?style=social)](https://github.com/iampique/dfs-prophet)
 [![GitHub forks](https://img.shields.io/github/forks/iampique/dfs-prophet?style=social)](https://github.com/iampique/dfs-prophet)

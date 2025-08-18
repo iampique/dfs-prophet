@@ -244,7 +244,7 @@ trufflehog --regex --entropy=False .
    - Update access tokens
    - Regenerate SSH keys if exposed
 
-3. **Notify Team:**
+3. **Notify Maintainer:**
    - Inform maintainers immediately
    - Document the incident
    - Update security procedures

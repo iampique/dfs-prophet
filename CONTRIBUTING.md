@@ -6,7 +6,7 @@ Thank you for your interest in contributing to DFS Prophet! This document provid
 
 ### Types of Contributions
 
-We welcome contributions in the following areas:
+Contributions are welcome in the following areas:
 
 - **🐛 Bug Reports**: Help us identify and fix issues
 - **✨ Feature Requests**: Suggest new features and improvements
@@ -351,7 +351,7 @@ docs/
 ### Code of Conduct
 
 - **Be respectful**: Treat others with respect
-- **Be inclusive**: Welcome diverse perspectives
+- **Be inclusive**: Welcome diverse perspectives and contributions
 - **Be constructive**: Provide helpful feedback
 - **Be patient**: Allow time for responses
 
@@ -366,7 +366,7 @@ docs/
 
 ### Contributors
 
-We recognize contributors in several ways:
+Contributors are recognized in several ways:
 
 - **Contributors list**: All contributors are listed in the README
 - **Release notes**: Contributors are credited in release notes
@@ -377,7 +377,7 @@ We recognize contributors in several ways:
 - **Bronze**: 1-5 contributions
 - **Silver**: 6-20 contributions
 - **Gold**: 21+ contributions
-- **Platinum**: Core team member
+- **Platinum**: Core contributor
 
 ## 📞 Getting Help
 
