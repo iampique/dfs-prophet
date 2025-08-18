@@ -1,0 +1,300 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.venv.bak/
+venv.bak/
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+.env.development
+.env.test
+# Note: .env.example is NOT ignored - it should be committed to the repository
+secrets/
+secrets.json
+secrets.yaml
+secrets.yml
+config/secrets/
+credentials/
+credentials.json
+credentials.yaml
+credentials.yml
+api_keys.txt
+api_keys.json
+tokens.txt
+tokens.json
+private_key.pem
+public_key.pem
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+
+# Data files
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Cache and temporary files
+cache/
+tmp/
+temp/
+*.tmp
+*.temp
+*.cache
+.cache/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+log/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# pytest
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Translations
+*.mo
+*.pot
+
+# Scrapy stuff
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# Pyre type checker
+.pyre/
+
+# Security and monitoring
+security-report.json
+bandit-report.json
+*.security
+*.audit
+vulnerability-report.*
+security-scan.*
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+docker-compose.prod.yml
+
+# Kubernetes
+k8s/
+kubernetes/
+*.kubeconfig
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# AWS
+.aws/
+aws-credentials
+aws-config
+
+# Google Cloud
+gcloud/
+service-account-key.json
+# Note: *.json is too broad - we want to allow some JSON files
+# Only ignore specific credential JSON files
+credentials.json
+secrets.json
+api_keys.json
+tokens.json
+
+# Azure
+.azure/
+azure-credentials
+
+# SSH keys
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+known_hosts
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Test artifacts
+test-results/
+test-output/
+test-reports/
+*.test
+*.spec
+
+# Performance and profiling
+*.prof
+*.profile
+*.trace
+*.trace.*
+
+# Local development
+local/
+dev/
+development/
+staging/
+production/
+
+# Qdrant storage
+qdrant_storage/
+qdrant_data/
+
+# Node.js (if any frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Compiled files
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Media files
+*.3g2
+*.3gp
+*.avi
+*.flv
+*.h264
+*.m4v
+*.mkv
+*.mov
+*.mp4
+*.mpg
+*.mpeg
+*.rm
+*.swf
+*.vob
+*.wmv
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.svg
+*.ico
+*.psd
+*.ai
+*.eps
+*.pdf
