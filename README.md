@@ -108,7 +108,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/dfs-prophet.git
+git clone https://github.com/iampique/dfs-prophet.git
 cd dfs-prophet
 
 # Create virtual environment and install dependencies
