@@ -26,69 +26,433 @@ A cutting-edge Daily Fantasy Sports (DFS) platform powered by **Qdrant Vector Da
 ## 🏗️ **Architecture Overview**
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   FastAPI       │    │   Qdrant        │    │   Sentence      │
-│   REST API      │◄──►│   Vector DB     │◄──►│   Transformers  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Multi-Vector  │    │   Binary        │    │   Embedding     │
-│   Search Engine │    │   Quantization  │    │   Generator     │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    FastAPI Application                      │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
+│  │   main.py       │  │   config.py     │  │   cli.py     │ │
+│  │   (Entry Point) │  │   (Settings)    │  │   (CLI)      │ │
+│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    API Layer (routes/)                      │
+│  ┌─────────────────┐  ┌─────────────────┐                  │
+│  │   players.py    │  │   health.py     │                  │
+│  │   (Search APIs) │  │   (Health APIs) │                  │
+│  └─────────────────┘  └─────────────────┘                  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Core Engine (core/)                      │
+│  ┌─────────────────┐  ┌─────────────────┐                  │
+│  │vector_engine.py │  │embedding_gen.py │                  │
+│  │(Qdrant Client)  │  │(Multi-Vector)   │                  │
+│  │+ Binary Quant.  │  │+ Multi-Type     │                  │
+│  └─────────────────┘  └─────────────────┘                  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Data Layer (data/)                       │
+│  ┌─────────────────┐  ┌─────────────────┐                  │
+│  │   models/       │  │  collectors/    │                  │
+│  │   (Pydantic)    │  │   (NFL Data)    │                  │
+│  └─────────────────┘  └─────────────────┘                  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    External Services                        │
+│  ┌─────────────────┐  ┌─────────────────┐                  │
+│  │   Qdrant DB     │  │SentenceTransform│                  │
+│  │   (Vector DB)   │  │   (BGE Model)   │                  │
+│  └─────────────────┘  └─────────────────┘                  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Advanced Features                        │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
+│  │   Analytics     │  │   Monitoring    │  │   Advanced   │ │
+│  │   (Profiles)    │  │   (Performance) │  │   Search     │ │
+│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## 🚀 **Quick Start**
+---
 
-### **Prerequisites**
-- Python 3.9+
-- Docker & Docker Compose
-- Git
+# 🏠 **Local Development Setup**
 
-### **Installation**
+**Get DFS Prophet running on your machine in under 5 minutes!**
 
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd DFS-prophet
-   ```
+## 📋 **Prerequisites**
 
-2. **Install dependencies**
-   ```bash
-   # Install uv (recommended)
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   
-   # Or use pip
-   pip install -r requirements.txt
-   ```
+- **Python 3.9+**
+- **Docker** (for Qdrant)
+- **UV Package Manager** (recommended)
 
-3. **Start services**
-   ```bash
-   # Start Qdrant and API
-   docker-compose up -d
-   
-   # Or start individually
-   docker-compose up -d qdrant
-   uv run python -m dfs_prophet.main
-   ```
+```bash
+# Install UV (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-4. **Setup demo data**
-   ```bash
-   # Quick demo setup
-   uv run python scripts/setup_demo_data.py --simple
-   
-   # Full enhanced demo
-   uv run python scripts/setup_demo_data.py
-   ```
+# Install Docker (if not already installed)
+# macOS: brew install --cask docker
+# Ubuntu: sudo apt-get install docker.io
+```
 
-5. **Run the showcase**
-   ```bash
-   # Multi-vector search showcase
-   ./showcase_multi_vector_search.sh
-   
-   # Binary quantization showcase
-   ./showcase_binary_quantization.sh
-   ```
+## 🚀 **Quick Start (Local Development)**
+
+### **Step 1: Clone and Setup**
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/dfs-prophet.git
+cd dfs-prophet
+
+# Create virtual environment and install dependencies
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -e ".[dev]"
+```
+
+### **Step 2: Start Qdrant**
+
+```bash
+# Start Qdrant in Docker (required for vector database)
+docker run -d --name qdrant -p 6333:6333 -p 6334:6334 \
+  -v $(pwd)/qdrant_storage:/qdrant/storage \
+  qdrant/qdrant:latest
+
+# Verify Qdrant is running
+curl http://localhost:6333/health
+# Should return: {"title":"qdrant","version":"1.x.x","status":"ok"}
+```
+
+### **Step 3: Generate Demo Data**
+
+```bash
+# Generate synthetic player data and embeddings
+uv run python scripts/setup_demo_data.py --simple
+
+# You should see output like:
+# 🎯 Generating High-Quality Synthetic NFL Player Data...
+# ✅ Generated 47 high-quality players
+# 🗑️  Clearing existing collections...
+# 🏗️  Initializing collections...
+# 🧠 Generating embeddings...
+# ✅ Generated 47 embeddings
+# 📥 Loading embeddings into collections...
+# ✅ Synthetic data generation complete!
+```
+
+### **Step 4: Start the API**
+
+```bash
+# Start the FastAPI server
+uv run python -m dfs_prophet.main
+
+# You should see output like:
+# INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+# INFO:     Started reloader process [xxxxx] using StatReload
+# INFO:     Started server process [xxxxx]
+# INFO:     Waiting for application startup.
+# INFO:     Application startup complete.
+```
+
+### **Step 5: Test It Works!**
+
+Open a new terminal and run these quick tests:
+
+```bash
+# Test 1: Health check
+curl http://localhost:8000/api/v1/health
+
+# Test 2: Search for quarterbacks
+curl "http://localhost:8000/api/v1/players/search?query=quarterback&limit=3" | jq '.'
+
+# Test 3: Run the performance showcase
+./showcase_multi_vector_search.sh
+```
+
+### **Step 6: Explore the API**
+
+Open your browser and visit:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+## 🧪 **Testing Your Setup**
+
+### **Quick Verification**
+
+```bash
+# Run the comprehensive showcase
+./showcase_multi_vector_search.sh
+
+# Expected output includes:
+# ⚡ PERFORMANCE METRICS:
+#   Multi-Vector Search Time: ~42ms
+#   Traditional Search Time: ~2500ms
+#   Speed Improvement: ~98%
+#   Memory Compression: ~75%
+```
+
+### **Manual Testing**
+
+```bash
+# Search for specific players
+curl "http://localhost:8000/api/v1/players/search/stats?query=Mahomes&limit=3"
+
+# Compare performance
+curl "http://localhost:8000/api/v1/players/compare?query=quarterback&limit=5"
+
+# Check system status
+curl "http://localhost:8000/api/v1/health/vectors" | jq '.'
+```
+
+## 🔧 **Troubleshooting**
+
+### **Common Issues**
+
+**Qdrant Connection Failed**
+```bash
+# Check if Qdrant is running
+docker ps | grep qdrant
+
+# Restart if needed
+docker restart qdrant
+```
+
+**Port Already in Use**
+```bash
+# Use different port
+uv run python -m dfs_prophet.main --port 8001
+```
+
+**No Search Results**
+```bash
+# Regenerate demo data
+uv run python scripts/setup_demo_data.py --simple
+```
+
+**Import Errors**
+```bash
+# Ensure virtual environment is activated
+source .venv/bin/activate
+uv pip install -e ".[dev]"
+```
+
+---
+
+# 🚀 **Production Deployment**
+
+**Ready to deploy DFS Prophet to production? Here's everything you need!**
+
+## 🐳 **Docker Deployment**
+
+### **Quick Production Setup**
+
+```bash
+# Start the full production stack
+docker-compose up -d
+
+# Check all services are running
+docker-compose ps
+
+# View logs
+docker-compose logs -f dfs-prophet
+```
+
+### **What's Included**
+
+The Docker setup provides:
+- **Qdrant Vector Database** - Persistent storage with health checks
+- **DFS Prophet API** - Production-ready with Gunicorn workers
+- **Optional Services** - Redis caching, Prometheus monitoring, Grafana dashboards
+- **Data Persistence** - Volumes for Qdrant storage and logs
+- **Networking** - Service discovery and communication
+
+### **Production Configuration**
+
+```bash
+# Copy and edit environment for production
+cp .env.example .env.production
+
+# Edit production settings
+nano .env.production
+
+# Start with production config
+docker-compose -f docker-compose.yml --env-file .env.production up -d
+```
+
+## 🔧 **Advanced Configuration**
+
+### **Environment Variables**
+
+```bash
+# Production settings
+DEBUG=false
+LOG_LEVEL=WARNING
+QDRANT_URL=https://your-qdrant-instance.com
+QDRANT_API_KEY=your-production-api-key
+CORS_ORIGINS=["https://yourdomain.com"]
+
+# Performance tuning
+WORKERS=4
+BATCH_SIZE=64
+VECTOR_DB_BATCH_SIZE=200
+```
+
+### **Scaling Options**
+
+```bash
+# Scale API workers
+docker-compose up -d --scale dfs-prophet=3
+
+# Add Redis for caching
+docker-compose -f docker-compose.yml -f docker-compose.redis.yml up -d
+
+# Add monitoring stack
+docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+```
+
+## ☁️ **Cloud Deployment**
+
+### **AWS Deployment**
+
+```bash
+# Using AWS ECS
+aws ecs create-cluster --cluster-name dfs-prophet
+aws ecs register-task-definition --cli-input-json file://task-definition.json
+aws ecs create-service --cluster dfs-prophet --service-name dfs-prophet-api --task-definition dfs-prophet:1
+```
+
+### **Google Cloud Deployment**
+
+```bash
+# Using Google Cloud Run
+gcloud run deploy dfs-prophet \
+  --image gcr.io/your-project/dfs-prophet \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated
+```
+
+### **Kubernetes Deployment**
+
+```bash
+# Deploy to Kubernetes
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/qdrant.yaml
+kubectl apply -f k8s/dfs-prophet.yaml
+kubectl apply -f k8s/ingress.yaml
+```
+
+## 📊 **Monitoring & Observability**
+
+### **Health Checks**
+
+```bash
+# API health
+curl https://your-domain.com/api/v1/health
+
+# Detailed system status
+curl https://your-domain.com/api/v1/health/vectors
+```
+
+### **Performance Monitoring**
+
+```bash
+# Prometheus metrics
+curl https://your-domain.com/metrics
+
+# Grafana dashboards
+# Access at: https://your-domain.com:3000
+```
+
+### **Logging**
+
+```bash
+# View application logs
+docker-compose logs -f dfs-prophet
+
+# Structured JSON logging
+tail -f logs/dfs-prophet.log | jq '.'
+```
+
+## 🔒 **Security Considerations**
+
+### **Production Security**
+
+- **HTTPS Only** - Use TLS/SSL certificates
+- **API Authentication** - Implement JWT or OAuth2
+- **Rate Limiting** - Protect against abuse
+- **Secrets Management** - Use AWS Secrets Manager or HashiCorp Vault
+- **Network Security** - VPC, security groups, firewall rules
+
+### **Security Checklist**
+
+- [ ] HTTPS enabled with valid certificates
+- [ ] API authentication implemented
+- [ ] Rate limiting configured
+- [ ] Secrets stored securely (not in code)
+- [ ] Regular security updates
+- [ ] Monitoring and alerting setup
+- [ ] Backup strategy implemented
+
+## 📈 **Performance Optimization**
+
+### **Production Tuning**
+
+```bash
+# Optimize for high throughput
+WORKERS=8
+BATCH_SIZE=128
+VECTOR_DB_BATCH_SIZE=500
+
+# Memory optimization
+BINARY_QUANTIZATION_ENABLED=true
+BINARY_QUANTIZATION_ALWAYS_RAM=true
+
+# Caching
+REDIS_URL=redis://your-redis-instance:6379
+CACHE_TTL=3600
+```
+
+### **Load Testing**
+
+```bash
+# Run load tests
+uv run python scripts/load_test.py
+
+# Benchmark performance
+uv run python scripts/benchmark_search.py
+
+# Monitor resource usage
+docker stats
+```
+
+## 🚀 **Deployment Checklist**
+
+### **Pre-Deployment**
+
+- [ ] Environment variables configured
+- [ ] Database migrations completed
+- [ ] SSL certificates installed
+- [ ] Monitoring setup
+- [ ] Backup strategy tested
+- [ ] Security audit completed
+
+### **Post-Deployment**
+
+- [ ] Health checks passing
+- [ ] Performance benchmarks met
+- [ ] Monitoring alerts configured
+- [ ] Documentation updated
+- [ ] Deployment team trained (if applicable)
+
+---
 
 ## 📊 **Showcase Examples**
 
