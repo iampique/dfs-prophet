@@ -1,222 +1,214 @@
-# Contributing to DFS Prophet
+# 🤝 Contributing to DFS Prophet
 
 Thank you for your interest in contributing to DFS Prophet! This document provides guidelines and information for contributors.
 
-## 🤝 How to Contribute
+## 🎯 **How to Contribute**
 
-### Types of Contributions
+### **Types of Contributions**
+- 🐛 **Bug Reports**: Report issues and bugs
+- 💡 **Feature Requests**: Suggest new features
+- 📝 **Documentation**: Improve docs and examples
+- 🔧 **Code Contributions**: Submit pull requests
+- 🧪 **Testing**: Add tests or improve test coverage
+- 🌟 **Showcase**: Create demos and examples
 
-Contributions are welcome in the following areas:
+## 🚀 **Getting Started**
 
-- **🐛 Bug Reports**: Help us identify and fix issues
-- **✨ Feature Requests**: Suggest new features and improvements
-- **📝 Documentation**: Improve docs, examples, and guides
-- **🧪 Tests**: Add or improve test coverage
-- **🔧 Code**: Submit bug fixes and new features
-- **🎨 UI/UX**: Improve user experience and interface
-- **📊 Performance**: Optimize code and improve benchmarks
-
-### Before You Start
-
-1. **Check existing issues**: Search for similar issues or feature requests
-2. **Read the docs**: Familiarize yourself with the project structure
-3. **Join discussions**: Participate in GitHub Discussions
-4. **Set up development environment**: Follow the setup guide below
-
-## 🛠️ Development Setup
-
-### Prerequisites
-
-- Python 3.11+
-- Docker
-- UV Package Manager
+### **Prerequisites**
+- Python 3.9+
 - Git
+- Docker (for Qdrant)
+- UV package manager (recommended)
 
-### Local Development
+### **Development Setup**
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/dfs-prophet.git
-cd dfs-prophet
+1. **Fork the repository**
+   ```bash
+   # Fork on GitHub, then clone your fork
+   git clone https://github.com/YOUR_USERNAME/dfs-prophet.git
+   cd dfs-prophet
+   ```
 
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+2. **Set up development environment**
+   ```bash
+   # Install uv (if not already installed)
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   
+   # Create virtual environment and install dependencies
+   uv venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   uv pip install -e ".[dev]"
+   ```
 
-# Install dependencies
-uv pip install -e ".[dev]"
+3. **Start services**
+   ```bash
+   # Start Qdrant
+   docker-compose up -d qdrant
+   
+   # Start the API (in another terminal)
+   uv run python -m dfs_prophet.main
+   ```
 
-# Install pre-commit hooks
-pre-commit install
+4. **Run tests**
+   ```bash
+   # Run all tests
+   uv run pytest
+   
+   # Run with coverage
+   uv run pytest --cov=src/dfs_prophet
+   ```
 
-# Start Qdrant
-docker run -d --name qdrant -p 6333:6333 -p 6334:6334 \
-  -v $(pwd)/qdrant_storage:/qdrant/storage \
-  qdrant/qdrant:latest
+## 📝 **Code Style Guidelines**
 
-# Generate demo data
-python scripts/generate_synthetic_data.py
-```
+### **Python Code Style**
+- **Black**: Code formatting
+- **isort**: Import sorting
+- **Ruff**: Linting
+- **MyPy**: Type checking
 
-### Code Quality Tools
-
+### **Running Code Quality Tools**
 ```bash
 # Format code
-black src/ tests/
-isort src/ tests/
+uv run black src/ tests/
+uv run isort src/ tests/
 
 # Lint code
-ruff check src/ tests/
-ruff check --fix src/ tests/
+uv run ruff check src/ tests/
 
 # Type checking
-mypy src/
-
-# Run tests
-pytest
-
-# Run tests with coverage
-pytest --cov=src/dfs_prophet --cov-report=html
+uv run mypy src/
 ```
 
-## 📋 Contribution Guidelines
+### **Pre-commit Hooks**
+```bash
+# Install pre-commit hooks
+uv run pre-commit install
 
-### Code Style
-
-- **Python**: Follow PEP 8 with Black formatting
-- **Type Hints**: Use type hints for all functions and methods
-- **Docstrings**: Use Google-style docstrings
-- **Imports**: Use absolute imports, organized with isort
-- **Line Length**: 88 characters (Black default)
-
-### Commit Messages
-
-Use conventional commit format:
-
-```
-type(scope): description
-
-[optional body]
-
-[optional footer]
+# Run manually
+uv run pre-commit run --all-files
 ```
 
-Types:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes
-- `refactor`: Code refactoring
-- `test`: Test changes
-- `chore`: Build/tooling changes
+## 🧪 **Testing Guidelines**
 
-Examples:
+### **Writing Tests**
+- Use **pytest** for all tests
+- Follow the existing test structure
+- Aim for 90%+ code coverage
+- Include both unit and integration tests
+
+### **Test Structure**
 ```
-feat(api): add batch search endpoint
-fix(vector): resolve memory leak in binary quantization
-docs(readme): update installation instructions
-test(embedding): add unit tests for BGE model
+tests/
+├── unit/                    # Unit tests
+│   ├── test_vector_engine.py
+│   ├── test_embedding_generator.py
+│   └── test_api.py
+├── integration/             # Integration tests
+│   ├── test_multi_vector.py
+│   └── test_end_to_end.py
+└── conftest.py             # Test configuration
 ```
 
-### Pull Request Process
+### **Running Tests**
+```bash
+# Run all tests
+uv run pytest
 
-1. **Create a feature branch**:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+# Run specific test categories
+uv run pytest tests/unit/
+uv run pytest tests/integration/
 
-2. **Make your changes**:
-   - Write clean, well-documented code
-   - Add tests for new functionality
-   - Update documentation as needed
+# Run with coverage
+uv run pytest --cov=src/dfs_prophet --cov-report=html
+```
 
-3. **Run quality checks**:
-   ```bash
-   # Format and lint
-   black src/ tests/
-   isort src/ tests/
-   ruff check src/ tests/
-   mypy src/
+## 📚 **Documentation Guidelines**
 
-   # Run tests
-   pytest
+### **Code Documentation**
+- Use **Google-style docstrings** for all functions and classes
+- Include **type hints** for all function parameters and return values
+- Add **examples** in docstrings for complex functions
 
-   # Run integration tests
-   pytest tests/integration/
-   ```
-
-4. **Commit your changes**:
-   ```bash
-   git add .
-   git commit -m "feat(scope): description"
-   ```
-
-5. **Push and create PR**:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-6. **PR Review**:
-   - Ensure all CI checks pass
-   - Address reviewer feedback
-   - Update PR description with details
-
-### Testing Guidelines
-
-#### Unit Tests
-- Test individual functions and methods
-- Use descriptive test names
-- Mock external dependencies
-- Aim for 90%+ coverage
-
-#### Integration Tests
-- Test API endpoints
-- Test database operations
-- Test end-to-end workflows
-
-#### Performance Tests
-- Benchmark critical operations
-- Monitor memory usage
-- Test scalability
-
-Example test structure:
+### **Example Docstring**
 ```python
-import pytest
-from dfs_prophet.core import EmbeddingGenerator
-
-class TestEmbeddingGenerator:
-    """Test cases for EmbeddingGenerator."""
+def search_players(
+    query: str,
+    limit: int = 10,
+    score_threshold: float = 0.5
+) -> List[Player]:
+    """Search for players using vector similarity.
     
-    @pytest.fixture
-    def generator(self):
-        """Create EmbeddingGenerator instance."""
-        return EmbeddingGenerator()
-    
-    def test_generate_player_embedding(self, generator):
-        """Test player embedding generation."""
-        # Test implementation
-        pass
-    
-    @pytest.mark.asyncio
-    async def test_batch_embeddings(self, generator):
-        """Test batch embedding generation."""
-        # Test implementation
-        pass
+    Args:
+        query: Natural language search query
+        limit: Maximum number of results to return
+        score_threshold: Minimum similarity score (0.0-1.0)
+        
+    Returns:
+        List of players matching the query
+        
+    Example:
+        >>> players = search_players("elite quarterback", limit=5)
+        >>> len(players)
+        5
+    """
 ```
 
-## 🐛 Bug Reports
+### **API Documentation**
+- Update **OpenAPI schemas** when adding new endpoints
+- Include **request/response examples**
+- Document **error codes** and **status codes**
 
-### Before Reporting
+## 🔄 **Pull Request Process**
 
-1. **Search existing issues**: Check if the bug is already reported
-2. **Reproduce the issue**: Ensure you can consistently reproduce it
-3. **Check documentation**: Verify it's not a configuration issue
+### **Before Submitting**
+1. **Ensure tests pass**
+   ```bash
+   uv run pytest
+   ```
 
-### Bug Report Template
+2. **Check code quality**
+   ```bash
+   uv run black src/ tests/
+   uv run isort src/ tests/
+   uv run ruff check src/ tests/
+   uv run mypy src/
+   ```
 
+3. **Update documentation**
+   - Update README.md if needed
+   - Add docstrings for new functions
+   - Update API documentation
+
+### **Pull Request Template**
+```markdown
+## Description
+Brief description of changes
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Documentation update
+- [ ] Test addition/update
+- [ ] Performance improvement
+
+## Testing
+- [ ] Unit tests pass
+- [ ] Integration tests pass
+- [ ] Manual testing completed
+
+## Checklist
+- [ ] Code follows style guidelines
+- [ ] Self-review completed
+- [ ] Documentation updated
+- [ ] Tests added/updated
+```
+
+## 🐛 **Bug Reports**
+
+### **Bug Report Template**
 ```markdown
 ## Bug Description
-Brief description of the issue.
+Clear description of the bug
 
 ## Steps to Reproduce
 1. Step 1
@@ -224,187 +216,70 @@ Brief description of the issue.
 3. Step 3
 
 ## Expected Behavior
-What you expected to happen.
+What should happen
 
 ## Actual Behavior
-What actually happened.
+What actually happens
 
 ## Environment
-- OS: [e.g., macOS 14.0]
-- Python: [e.g., 3.11.5]
-- DFS Prophet: [e.g., 0.1.0]
-- Qdrant: [e.g., 1.14.0]
+- OS: [e.g., macOS, Ubuntu]
+- Python Version: [e.g., 3.9.0]
+- DFS Prophet Version: [e.g., 1.0.0]
 
 ## Additional Information
-- Error messages/logs
-- Screenshots
-- Configuration files
+Screenshots, logs, etc.
 ```
 
-## ✨ Feature Requests
+## 💡 **Feature Requests**
 
-### Before Requesting
-
-1. **Search existing issues**: Check if the feature is already requested
-2. **Consider alternatives**: Look for existing solutions
-3. **Think about implementation**: Consider complexity and impact
-
-### Feature Request Template
-
+### **Feature Request Template**
 ```markdown
 ## Feature Description
-Clear description of the feature.
+Clear description of the requested feature
 
-## Problem Statement
-What problem does this feature solve?
+## Use Case
+Why this feature is needed
 
 ## Proposed Solution
-How should this feature work?
+How you think it should be implemented
 
 ## Alternatives Considered
-What other approaches were considered?
+Other approaches you've considered
 
-## Additional Context
-- Use cases
-- Examples
-- Mockups
+## Additional Information
+Any other relevant information
 ```
 
-## 📝 Documentation
+## 🏷️ **Issue Labels**
 
-### Documentation Standards
-
-- **Clear and concise**: Write for the target audience
-- **Examples**: Include practical examples
-- **Code blocks**: Use syntax highlighting
-- **Links**: Link to related documentation
-- **Images**: Include diagrams and screenshots when helpful
-
-### Documentation Structure
-
-```
-docs/
-├── getting-started/
-│   ├── installation.md
-│   ├── quick-start.md
-│   └── configuration.md
-├── api/
-│   ├── endpoints.md
-│   ├── models.md
-│   └── examples.md
-├── development/
-│   ├── architecture.md
-│   ├── contributing.md
-│   └── testing.md
-└── deployment/
-    ├── docker.md
-    ├── production.md
-    └── monitoring.md
-```
-
-## 🏷️ Labels and Milestones
-
-### Issue Labels
-
+We use the following labels to categorize issues:
 - `bug`: Something isn't working
 - `enhancement`: New feature or request
-- `documentation`: Improvements to documentation
+- `documentation`: Improvements or additions to documentation
 - `good first issue`: Good for newcomers
 - `help wanted`: Extra attention is needed
-- `priority: high`: High priority issues
-- `priority: low`: Low priority issues
-- `priority: medium`: Medium priority issues
+- `question`: Further information is requested
 
-### Milestones
+## 📞 **Getting Help**
 
-- `v1.1.0`: Next minor release
-- `v1.2.0`: Future minor release
-- `v2.0.0`: Major release
-- `Backlog`: Future consideration
+### **Communication Channels**
+- **GitHub Issues**: For bug reports and feature requests
+- **GitHub Discussions**: For questions and general discussion
+- **Pull Requests**: For code contributions
 
-## 🎯 Development Priorities
+### **Code of Conduct**
+- Be respectful and inclusive
+- Focus on constructive feedback
+- Help others learn and grow
+- Follow the project's coding standards
 
-### Current Focus Areas
+## 🎉 **Recognition**
 
-1. **Performance Optimization**
-   - Vector search speed improvements
-   - Memory usage optimization
-   - Batch processing efficiency
-
-2. **Feature Enhancements**
-   - Multi-sport support
-   - Advanced analytics
-   - Real-time data integration
-
-3. **Developer Experience**
-   - Better error messages
-   - Improved documentation
-   - Enhanced testing
-
-4. **Production Readiness**
-   - Monitoring and observability
-   - Security improvements
-   - Scalability enhancements
-
-## 🤝 Community Guidelines
-
-### Code of Conduct
-
-- **Be respectful**: Treat others with respect
-- **Be inclusive**: Welcome diverse perspectives and contributions
-- **Be constructive**: Provide helpful feedback
-- **Be patient**: Allow time for responses
-
-### Communication Channels
-
-- **GitHub Issues**: Bug reports and feature requests
-- **GitHub Discussions**: General questions and discussions
-- **Pull Requests**: Code contributions
-- **Email**: support@dfsprophet.com
-
-## 🏆 Recognition
-
-### Contributors
-
-Contributors are recognized in several ways:
-
-- **Contributors list**: All contributors are listed in the README
-- **Release notes**: Contributors are credited in release notes
-- **Special thanks**: Significant contributions are highlighted
-
-### Contribution Levels
-
-- **Bronze**: 1-5 contributions
-- **Silver**: 6-20 contributions
-- **Gold**: 21+ contributions
-- **Platinum**: Core contributor
-
-## 📞 Getting Help
-
-### Before Asking for Help
-
-1. **Check documentation**: Look for existing answers
-2. **Search issues**: Check if your question was already answered
-3. **Try debugging**: Attempt to solve the issue yourself
-
-### Where to Ask
-
-- **GitHub Discussions**: General questions and help
-- **GitHub Issues**: Bug reports and feature requests
-- **Email**: support@dfsprophet.com
-
-### What to Include
-
-- Clear description of the problem
-- Steps to reproduce
-- Environment details
-- Error messages/logs
-- What you've already tried
-
-## 📄 License
-
-By contributing to DFS Prophet, you agree that your contributions will be licensed under the MIT License.
+Contributors will be recognized in:
+- **README.md** contributors section
+- **Release notes** for significant contributions
+- **GitHub contributors** page
 
 ---
 
-Thank you for contributing to DFS Prophet! 🏈
+**Thank you for contributing to DFS Prophet! 🚀**

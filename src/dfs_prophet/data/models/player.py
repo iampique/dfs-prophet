@@ -197,6 +197,74 @@ class PlayerStats(BaseModel):
         description="Rushing attempts",
         example=18.5
     )
+    
+    # Receiving statistics (WR, TE, RB)
+    receiving_yards: Optional[float] = Field(
+        None,
+        ge=-50,  # Allow small negative values for data issues
+        description="Receiving yards",
+        example=125.8
+    )
+    receiving_touchdowns: Optional[float] = Field(
+        None,
+        ge=0,
+        description="Receiving touchdowns",
+        example=1.2
+    )
+    receptions: Optional[float] = Field(
+        None,
+        ge=0,
+        description="Receptions",
+        example=8.5
+    )
+    targets: Optional[float] = Field(
+        None,
+        ge=0,
+        description="Targets",
+        example=12.3
+    )
+    
+    # Combined statistics
+    total_touchdowns: Optional[float] = Field(
+        None,
+        ge=0,
+        description="Total touchdowns (passing + rushing + receiving)",
+        example=3.1
+    )
+    total_yards: Optional[float] = Field(
+        None,
+        ge=-50,
+        description="Total yards (passing + rushing + receiving)",
+        example=523.6
+    )
+    
+    # Additional passing statistics
+    passing_attempts: Optional[float] = Field(
+        None,
+        ge=0,
+        description="Passing attempts",
+        example=35.2
+    )
+    passing_completions: Optional[float] = Field(
+        None,
+        ge=0,
+        description="Passing completions",
+        example=23.8
+    )
+    
+    # Additional receiving statistics
+    receiving_receptions: Optional[float] = Field(
+        None,
+        ge=0,
+        description="Receptions",
+        example=8.5
+    )
+    receiving_targets: Optional[float] = Field(
+        None,
+        ge=0,
+        description="Targets",
+        example=12.3
+    )
     yards_per_carry: Optional[float] = Field(
         None,
         ge=0,
@@ -348,7 +416,7 @@ class PlayerStats(BaseModel):
 
 
 class PlayerDFS(BaseModel):
-    """DFS-specific data model."""
+    """DFS-specific data model with historical trends."""
     
     salary: int = Field(
         ...,
@@ -406,6 +474,68 @@ class PlayerDFS(BaseModel):
         le=10,
         description="Matchup difficulty rating (1=easy, 10=hard)",
         example=3.5
+    )
+    
+    # Historical salary and ownership data
+    salary_history: Optional[List[int]] = Field(
+        None,
+        description="Historical salary data (last 5 weeks)",
+        example=[8200, 8300, 8400, 8450, 8500]
+    )
+    ownership_history: Optional[List[float]] = Field(
+        None,
+        description="Historical ownership data (last 5 weeks)",
+        example=[10.2, 11.8, 12.1, 12.3, 12.5]
+    )
+    salary_trend: Optional[float] = Field(
+        None,
+        description="Salary trend (ratio of current to average)",
+        example=1.05
+    )
+    ownership_trend: Optional[float] = Field(
+        None,
+        description="Ownership trend (ratio of current to average)",
+        example=0.95
+    )
+    salary_volatility: Optional[float] = Field(
+        None,
+        ge=0,
+        le=1,
+        description="Salary volatility (standard deviation / mean)",
+        example=0.15
+    )
+    ownership_volatility: Optional[float] = Field(
+        None,
+        ge=0,
+        le=1,
+        description="Ownership volatility (standard deviation / mean)",
+        example=0.25
+    )
+    
+    # ROI and performance history
+    roi_history: Optional[List[float]] = Field(
+        None,
+        description="Historical ROI data (last 5 weeks)",
+        example=[1.2, 0.8, 1.5, 0.9, 1.1]
+    )
+    avg_roi: Optional[float] = Field(
+        None,
+        description="Average ROI over historical period",
+        example=1.1
+    )
+    roi_volatility: Optional[float] = Field(
+        None,
+        ge=0,
+        le=1,
+        description="ROI volatility (standard deviation / mean)",
+        example=0.30
+    )
+    consistency_rating: Optional[float] = Field(
+        None,
+        ge=0,
+        le=10,
+        description="Performance consistency rating (1=volatile, 10=consistent)",
+        example=7.5
     )
     
     @validator('value_rating', pre=True, always=True)
@@ -496,13 +626,338 @@ class PlayerVector(BaseModel):
         }
 
 
+class PlayerStatVector(BaseModel):
+    """Statistical performance vector for player statistics."""
+    
+    vector_id: str = Field(
+        ...,
+        description="Unique statistical vector identifier",
+        example="stat_vec_12345_2024_1"
+    )
+    embedding: List[float] = Field(
+        ...,
+        description="Statistical performance embedding vector",
+        min_items=384,
+        max_items=2048
+    )
+    vector_dimensions: int = Field(
+        ...,
+        ge=384,
+        le=2048,
+        description="Number of vector dimensions",
+        example=768
+    )
+    embedding_model: str = Field(
+        ...,
+        description="Model used to generate statistical embedding",
+        example="BAAI/bge-base-en-v1.5"
+    )
+    embedding_timestamp: datetime = Field(
+        ...,
+        description="When the statistical embedding was generated"
+    )
+    stat_features: Dict[str, float] = Field(
+        ...,
+        description="Statistical features used for embedding",
+        example={
+            "passing_yards": 312.5,
+            "rushing_yards": 25.3,
+            "receiving_yards": 0.0,
+            "total_touchdowns": 2.3,
+            "fantasy_points": 18.7
+        }
+    )
+    stat_summary: str = Field(
+        ...,
+        description="Text summary of statistical features",
+        example="312.5 passing yards, 25.3 rushing yards, 2.3 total touchdowns, 18.7 fantasy points"
+    )
+    similarity_score: Optional[float] = Field(
+        None,
+        ge=0,
+        le=1,
+        description="Statistical similarity score from search",
+        example=0.92
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "vector_id": "stat_vec_12345_2024_1",
+                "embedding": [0.1, 0.2, 0.3, ...],
+                "vector_dimensions": 768,
+                "embedding_model": "BAAI/bge-base-en-v1.5",
+                "embedding_timestamp": "2024-08-18T10:30:00Z",
+                "stat_features": {
+                    "passing_yards": 312.5,
+                    "rushing_yards": 25.3,
+                    "total_touchdowns": 2.3,
+                    "fantasy_points": 18.7
+                },
+                "stat_summary": "312.5 passing yards, 25.3 rushing yards, 2.3 total touchdowns, 18.7 fantasy points",
+                "similarity_score": 0.92
+            }
+        }
+
+
+class PlayerContextVector(BaseModel):
+    """Game context vector for situational factors."""
+    
+    vector_id: str = Field(
+        ...,
+        description="Unique context vector identifier",
+        example="context_vec_12345_2024_1"
+    )
+    embedding: List[float] = Field(
+        ...,
+        description="Game context embedding vector",
+        min_items=384,
+        max_items=2048
+    )
+    vector_dimensions: int = Field(
+        ...,
+        ge=384,
+        le=2048,
+        description="Number of vector dimensions",
+        example=768
+    )
+    embedding_model: str = Field(
+        ...,
+        description="Model used to generate context embedding",
+        example="BAAI/bge-base-en-v1.5"
+    )
+    embedding_timestamp: datetime = Field(
+        ...,
+        description="When the context embedding was generated"
+    )
+    context_features: Dict[str, Any] = Field(
+        ...,
+        description="Contextual features used for embedding",
+        example={
+            "opponent_team": "BUF",
+            "opponent_strength": 8.5,
+            "home_away": "home",
+            "weather_temp": 72.0,
+            "weather_wind": 5.0,
+            "weather_conditions": "clear",
+            "game_total": 48.5,
+            "team_spread": -3.5,
+            "injury_status": "healthy"
+        }
+    )
+    context_summary: str = Field(
+        ...,
+        description="Text summary of contextual features",
+        example="Home game vs BUF (strength: 8.5), clear weather 72°F 5mph wind, game total 48.5, spread -3.5"
+    )
+    similarity_score: Optional[float] = Field(
+        None,
+        ge=0,
+        le=1,
+        description="Context similarity score from search",
+        example=0.85
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "vector_id": "context_vec_12345_2024_1",
+                "embedding": [0.1, 0.2, 0.3, ...],
+                "vector_dimensions": 768,
+                "embedding_model": "BAAI/bge-base-en-v1.5",
+                "embedding_timestamp": "2024-08-18T10:30:00Z",
+                "context_features": {
+                    "opponent_team": "BUF",
+                    "opponent_strength": 8.5,
+                    "home_away": "home",
+                    "weather_temp": 72.0,
+                    "weather_wind": 5.0,
+                    "weather_conditions": "clear",
+                    "game_total": 48.5,
+                    "team_spread": -3.5,
+                    "injury_status": "healthy"
+                },
+                "context_summary": "Home game vs BUF (strength: 8.5), clear weather 72°F 5mph wind, game total 48.5, spread -3.5",
+                "similarity_score": 0.85
+            }
+        }
+
+
+class PlayerValueVector(BaseModel):
+    """DFS value patterns vector for salary and ownership trends."""
+    
+    vector_id: str = Field(
+        ...,
+        description="Unique value vector identifier",
+        example="value_vec_12345_2024_1"
+    )
+    embedding: List[float] = Field(
+        ...,
+        description="DFS value patterns embedding vector",
+        min_items=384,
+        max_items=2048
+    )
+    vector_dimensions: int = Field(
+        ...,
+        ge=384,
+        le=2048,
+        description="Number of vector dimensions",
+        example=768
+    )
+    embedding_model: str = Field(
+        ...,
+        description="Model used to generate value embedding",
+        example="BAAI/bge-base-en-v1.5"
+    )
+    embedding_timestamp: datetime = Field(
+        ...,
+        description="When the value embedding was generated"
+    )
+    value_features: Dict[str, Any] = Field(
+        ...,
+        description="Value features used for embedding",
+        example={
+            "current_salary": 8500,
+            "salary_trend": 1.05,
+            "ownership_percentage": 12.5,
+            "ownership_trend": 0.95,
+            "value_rating": 2.2,
+            "roi_history": [1.2, 0.8, 1.5, 0.9, 1.1],
+            "avg_roi": 1.1,
+            "salary_volatility": 0.15,
+            "ownership_volatility": 0.25
+        }
+    )
+    value_summary: str = Field(
+        ...,
+        description="Text summary of value features",
+        example="Salary $8500 (trending +5%), ownership 12.5% (trending -5%), value rating 2.2, avg ROI 1.1"
+    )
+    similarity_score: Optional[float] = Field(
+        None,
+        ge=0,
+        le=1,
+        description="Value similarity score from search",
+        example=0.78
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "vector_id": "value_vec_12345_2024_1",
+                "embedding": [0.1, 0.2, 0.3, ...],
+                "vector_dimensions": 768,
+                "embedding_model": "BAAI/bge-base-en-v1.5",
+                "embedding_timestamp": "2024-08-18T10:30:00Z",
+                "value_features": {
+                    "current_salary": 8500,
+                    "salary_trend": 1.05,
+                    "ownership_percentage": 12.5,
+                    "ownership_trend": 0.95,
+                    "value_rating": 2.2,
+                    "roi_history": [1.2, 0.8, 1.5, 0.9, 1.1],
+                    "avg_roi": 1.1,
+                    "salary_volatility": 0.15,
+                    "ownership_volatility": 0.25
+                },
+                "value_summary": "Salary $8500 (trending +5%), ownership 12.5% (trending -5%), value rating 2.2, avg ROI 1.1",
+                "similarity_score": 0.78
+            }
+        }
+
+
+class PlayerMultiVector(BaseModel):
+    """Container for all vector types with named vectors."""
+    
+    player_id: str = Field(
+        ...,
+        description="Player identifier",
+        example="12345"
+    )
+    season: int = Field(
+        ...,
+        ge=2020,
+        le=2030,
+        description="NFL season year",
+        example=2024
+    )
+    week: Optional[int] = Field(
+        None,
+        ge=1,
+        le=25,
+        description="Week number in the season",
+        example=1
+    )
+    stat_vector: Optional[PlayerStatVector] = Field(
+        None,
+        description="Statistical performance vector"
+    )
+    context_vector: Optional[PlayerContextVector] = Field(
+        None,
+        description="Game context vector"
+    )
+    value_vector: Optional[PlayerValueVector] = Field(
+        None,
+        description="DFS value patterns vector"
+    )
+    combined_vector: Optional[PlayerVector] = Field(
+        None,
+        description="Combined multi-modal vector"
+    )
+    vector_metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Additional vector metadata",
+        example={
+            "vector_count": 4,
+            "embedding_models": ["BAAI/bge-base-en-v1.5"],
+            "total_dimensions": 3072,
+            "last_updated": "2024-08-18T10:30:00Z"
+        }
+    )
+    
+    @property
+    def available_vectors(self) -> List[str]:
+        """Get list of available vector types."""
+        vectors = []
+        if self.stat_vector:
+            vectors.append("stat")
+        if self.context_vector:
+            vectors.append("context")
+        if self.value_vector:
+            vectors.append("value")
+        if self.combined_vector:
+            vectors.append("combined")
+        return vectors
+    
+    @property
+    def vector_count(self) -> int:
+        """Get total number of available vectors."""
+        return len(self.available_vectors)
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "player_id": "12345",
+                "season": 2024,
+                "week": 1,
+                "vector_metadata": {
+                    "vector_count": 4,
+                    "embedding_models": ["BAAI/bge-base-en-v1.5"],
+                    "total_dimensions": 3072,
+                    "last_updated": "2024-08-18T10:30:00Z"
+                }
+            }
+        }
+
+
 class Player(BaseModel):
-    """Complete player model combining all player data."""
+    """Complete player model combining all player data with multi-vector support."""
     
     base: PlayerBase = Field(..., description="Core player information")
     stats: Optional[PlayerStats] = Field(None, description="Player statistics")
     dfs: Optional[PlayerDFS] = Field(None, description="DFS-specific data")
     vector: Optional[PlayerVector] = Field(None, description="Vector representation")
+    multi_vector: Optional[PlayerMultiVector] = Field(None, description="Multi-modal vector representations")
     
     @property
     def player_id(self) -> str:
@@ -605,6 +1060,11 @@ class SearchRequest(BaseModel):
         default=False,
         description="Include vector data in response"
     )
+    vector_types: Optional[List[str]] = Field(
+        None,
+        description="Vector types to search across (for multi-vector search)",
+        example=["stat", "context", "value", "combined"]
+    )
     
     class Config:
         json_schema_extra = {
@@ -658,6 +1118,209 @@ class SearchResponse(BaseModel):
                     "vector_dimensions": 768,
                     "embedding_model": "BAAI/bge-base-en-v1.5"
                 }
+            }
+        }
+
+
+class MultiVectorSearchRequest(BaseModel):
+    """API request model for multi-vector player search."""
+    
+    query: str = Field(
+        ...,
+        min_length=1,
+        max_length=1000,
+        description="Search query text",
+        example="high passing yards quarterback in good weather"
+    )
+    vector_types: List[str] = Field(
+        default=["combined"],
+        description="Vector types to search across",
+        example=["stat", "context", "value", "combined"]
+    )
+    vector_weights: Optional[Dict[str, float]] = Field(
+        None,
+        description="Weight for each vector type in combined search",
+        example={"stat": 0.4, "context": 0.3, "value": 0.3}
+    )
+    position: Optional[Position] = Field(
+        None,
+        description="Filter by player position"
+    )
+    team: Optional[Team] = Field(
+        None,
+        description="Filter by team"
+    )
+    season: Optional[int] = Field(
+        None,
+        ge=2020,
+        le=2030,
+        description="Filter by season"
+    )
+    week: Optional[int] = Field(
+        None,
+        ge=1,
+        le=25,
+        description="Filter by week"
+    )
+    limit: int = Field(
+        default=10,
+        ge=1,
+        le=100,
+        description="Maximum number of results to return",
+        example=10
+    )
+    min_similarity: float = Field(
+        default=0.5,
+        ge=0,
+        le=1,
+        description="Minimum similarity score threshold",
+        example=0.7
+    )
+    include_stats: bool = Field(
+        default=True,
+        description="Include player statistics in response"
+    )
+    include_dfs: bool = Field(
+        default=True,
+        description="Include DFS data in response"
+    )
+    include_vectors: bool = Field(
+        default=False,
+        description="Include vector data in response"
+    )
+    search_strategy: str = Field(
+        default="weighted_combination",
+        description="Multi-vector search strategy",
+        example="weighted_combination"
+    )
+    
+    @validator('vector_types')
+    def validate_vector_types(cls, v):
+        """Validate vector types are supported."""
+        valid_types = ["stat", "context", "value", "combined"]
+        for vt in v:
+            if vt not in valid_types:
+                raise ValueError(f"Vector type '{vt}' not supported. Valid types: {valid_types}")
+        return v
+    
+    @validator('vector_weights')
+    def validate_vector_weights(cls, v, values):
+        """Validate vector weights sum to 1.0."""
+        if v is not None:
+            total_weight = sum(v.values())
+            if abs(total_weight - 1.0) > 0.01:
+                raise ValueError(f"Vector weights must sum to 1.0, got {total_weight}")
+        return v
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "query": "high passing yards quarterback in good weather",
+                "vector_types": ["stat", "context", "value"],
+                "vector_weights": {"stat": 0.4, "context": 0.3, "value": 0.3},
+                "position": "QB",
+                "season": 2024,
+                "limit": 10,
+                "min_similarity": 0.7,
+                "search_strategy": "weighted_combination"
+            }
+        }
+
+
+class MultiVectorSearchResponse(BaseModel):
+    """API response model for multi-vector player search with vector-specific scores."""
+    
+    query: str = Field(..., description="Original search query")
+    results: List[Player] = Field(..., description="Search results")
+    total_results: int = Field(..., description="Total number of results found")
+    search_time_ms: float = Field(..., description="Total search execution time in milliseconds")
+    vector_scores: Dict[str, List[float]] = Field(
+        ...,
+        description="Similarity scores for each vector type",
+        example={
+            "stat": [0.92, 0.88, 0.85, 0.82, 0.79],
+            "context": [0.85, 0.82, 0.78, 0.75, 0.72],
+            "value": [0.78, 0.75, 0.72, 0.69, 0.66],
+            "combined": [0.87, 0.83, 0.79, 0.76, 0.73]
+        }
+    )
+    combined_scores: List[float] = Field(
+        ...,
+        description="Combined similarity scores for results"
+    )
+    vector_search_times: Dict[str, float] = Field(
+        ...,
+        description="Search time for each vector type in milliseconds",
+        example={
+            "stat": 45.2,
+            "context": 38.7,
+            "value": 42.1,
+            "combined": 125.5
+        }
+    )
+    embedding_times: Dict[str, float] = Field(
+        ...,
+        description="Embedding generation time for each vector type in milliseconds",
+        example={
+            "stat": 23.1,
+            "context": 21.5,
+            "value": 22.8,
+            "combined": 67.4
+        }
+    )
+    search_strategy: str = Field(
+        ...,
+        description="Search strategy used",
+        example="weighted_combination"
+    )
+    vector_weights: Optional[Dict[str, float]] = Field(
+        None,
+        description="Weights used for each vector type",
+        example={"stat": 0.4, "context": 0.3, "value": 0.3}
+    )
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Additional search metadata",
+        example={
+            "vector_types_searched": ["stat", "context", "value"],
+            "total_vectors_processed": 15000,
+            "embedding_models": ["BAAI/bge-base-en-v1.5"],
+            "collections_searched": ["dfs_players_stat", "dfs_players_context", "dfs_players_value"]
+        }
+    )
+    
+    @property
+    def average_combined_score(self) -> float:
+        """Calculate average combined similarity score."""
+        if not self.combined_scores:
+            return 0.0
+        return sum(self.combined_scores) / len(self.combined_scores)
+    
+    @property
+    def total_vector_search_time(self) -> float:
+        """Calculate total vector search time."""
+        return sum(self.vector_search_times.values())
+    
+    @property
+    def total_embedding_time(self) -> float:
+        """Calculate total embedding generation time."""
+        return sum(self.embedding_times.values())
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "query": "high passing yards quarterback in good weather",
+                "total_results": 5,
+                "search_time_ms": 125.5,
+                "vector_scores": {
+                    "stat": [0.92, 0.88, 0.85, 0.82, 0.79],
+                    "context": [0.85, 0.82, 0.78, 0.75, 0.72],
+                    "value": [0.78, 0.75, 0.72, 0.69, 0.66],
+                    "combined": [0.87, 0.83, 0.79, 0.76, 0.73]
+                },
+                "combined_scores": [0.87, 0.83, 0.79, 0.76, 0.73],
+                "search_strategy": "weighted_combination",
+                "vector_weights": {"stat": 0.4, "context": 0.3, "value": 0.3}
             }
         }
 

@@ -4,7 +4,7 @@ echo "🏈 DFS Prophet - Binary Quantization Performance Showcase"
 echo "========================================================"
 echo ""
 
-BASE_URL="http://localhost:8001/api/v1"
+BASE_URL="http://localhost:8000/api/v1"
 
 # Colors for output
 RED='\033[0;31m'

@@ -176,6 +176,7 @@ markers = [
     "integration: marks tests as integration tests",
     "performance: marks tests as performance tests",
     "unit: marks tests as unit tests",
+    "asyncio: marks tests as async tests",
 ]
 
 [tool.coverage.run]
