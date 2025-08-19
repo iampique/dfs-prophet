@@ -187,8 +187,11 @@ Open your browser and visit:
 ### **Quick Verification**
 
 ```bash
-# Run the comprehensive showcase
+# Run the multi-vector search showcase
 ./showcase_multi_vector_search.sh
+
+# Run the binary quantization showcase
+./showcase_binary_quantization.sh
 
 # Expected output includes:
 # ⚡ PERFORMANCE METRICS:
@@ -196,6 +199,7 @@ Open your browser and visit:
 #   Traditional Search Time: ~2500ms
 #   Speed Improvement: ~98%
 #   Memory Compression: ~75%
+#   Binary Quantization: ~40x faster search
 ```
 
 ### **Manual Testing**
@@ -455,6 +459,18 @@ docker stats
 ---
 
 ## 📊 **Showcase Examples**
+
+### **Multi-Vector Search Showcase**
+```bash
+# Run the comprehensive multi-vector search demo
+./showcase_multi_vector_search.sh
+```
+
+### **Binary Quantization Showcase**
+```bash
+# Run the binary quantization performance demo
+./showcase_binary_quantization.sh
+```
 
 ### **Statistical Vector Search**
 ```bash
