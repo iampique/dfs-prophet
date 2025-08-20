@@ -580,9 +580,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 **Contact**
 
 For questions, feedback, or collaboration opportunities:
-- **LinkedIn**: [Your LinkedIn Profile]
-- **Email**: [your.email@example.com]
-- **GitHub**: [Your GitHub Profile]
+- **LinkedIn**: [Pavan Vemuri](https://www.linkedin.com/in/pavan-vemuri-77419723/)
+- **Email**: [vemuripavan@gmail.com](mailto:vemuripavan@gmail.com)
+- **GitHub**: [@iampique](https://github.com/iampique)
 
 ---
 
