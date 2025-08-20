@@ -1,0 +1,38 @@
+# Global owners
+* @iampique
+
+# Core engine components
+src/dfs_prophet/core/ @iampique
+src/dfs_prophet/config.py @iampique
+
+# API endpoints
+src/dfs_prophet/api/ @iampique
+
+# Data models and collectors
+src/dfs_prophet/data/ @iampique
+
+# Analytics and monitoring
+src/dfs_prophet/analytics/ @iampique
+src/dfs_prophet/monitoring/ @iampique
+
+# Search functionality
+src/dfs_prophet/search/ @iampique
+
+# Documentation
+docs/ @iampique
+README.md @iampique
+CONTRIBUTING.md @iampique
+SECURITY.md @iampique
+
+# Configuration files
+pyproject.toml @iampique
+docker-compose.yml @iampique
+Dockerfile @iampique
+
+# Scripts and examples
+scripts/ @iampique
+examples/ @iampique
+showcase_*.sh @iampique
+
+# Tests
+tests/ @iampique
