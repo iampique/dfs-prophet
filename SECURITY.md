@@ -109,7 +109,7 @@ DFS Prophet includes several security features:
 
 ## Contact Information
 
-- **Security Email**: [security@dfsprophet.com](mailto:security@dfsprophet.com)
+- **Security Email**: [vemuripavan@gmail.com](mailto:vemuripavan@gmail.com)
 - **PGP Key**: [security-pgp-key.asc](https://github.com/iampique/dfs-prophet/security-pgp-key.asc)
 - **Security Team**: DFS Prophet Security Team
 

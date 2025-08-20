@@ -7,7 +7,7 @@ and building vector-based recommendation systems for DFS optimization.
 """
 
 __version__ = "0.1.0"
-__author__ = "DFS Prophet Team"
+__author__ = "Pavan Vemuri"
 
 # Public exports for convenient imports
 from .config import get_settings

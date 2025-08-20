@@ -9,7 +9,7 @@ description = "AI-Powered Daily Fantasy Sports API with Vector Search & Binary Q
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "DFS Prophet Team", email = "team@dfsprophet.com"}
+    {name = "Pavan Vemuri", email = "vemuripavan@gmail.com"}
 ]
 keywords = [
     "dfs", "fantasy-sports", "ai", "machine-learning", "vector-search", 
