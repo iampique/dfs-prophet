@@ -84,7 +84,6 @@ docs = [
 
 [project.urls]
 Homepage = "https://github.com/iampique/dfs-prophet"
-Documentation = "https://docs.dfsprophet.com"
 Repository = "https://github.com/iampique/dfs-prophet.git"
 "Bug Tracker" = "https://github.com/iampique/dfs-prophet/issues"
 "Discussions" = "https://github.com/iampique/dfs-prophet/discussions"

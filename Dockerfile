@@ -1,71 +1,190 @@
-# Use Python 3.11 slim image for smaller size
-FROM python:3.11-slim as base
+# Multi-stage Dockerfile for DFS Prophet
+# Build stage for dependencies and application
+FROM python:3.11-slim as builder
 
 # Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    build-essential \
     curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Create app directory
-WORKDIR /app
-
-# Install UV package manager
+# Install UV for faster dependency management
 RUN pip install uv
 
+# Set work directory
+WORKDIR /app
+
 # Copy dependency files
-COPY pyproject.toml ./
+COPY pyproject.toml uv.lock ./
 
 # Install dependencies
 RUN uv pip install --system -e ".[prod]"
 
-# Copy source code
+# Production stage
+FROM python:3.11-slim as production
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src \
+    PATH="/app/.venv/bin:$PATH"
+
+# Create non-root user for security
+RUN groupadd -r dfsprophet && useradd -r -g dfsprophet dfsprophet
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Set work directory
+WORKDIR /app
+
+# Copy virtual environment from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application code
 COPY src/ ./src/
 COPY scripts/ ./scripts/
 
 # Create necessary directories
-RUN mkdir -p /app/data /app/logs
+RUN mkdir -p /app/logs /app/data /app/qdrant_storage \
+    && chown -R dfsprophet:dfsprophet /app
 
-# Create non-root user for security
-RUN useradd --create-home --shell /bin/bash app \
-    && chown -R app:app /app
-USER app
+# Switch to non-root user
+USER dfsprophet
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8001/api/v1/health || exit 1
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/api/v1/health || exit 1
 
 # Expose port
-EXPOSE 8001
+EXPOSE 8000
 
 # Default command
-CMD ["uvicorn", "src.dfs_prophet.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "dfs_prophet.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 # Development stage
-FROM base as development
+FROM python:3.11-slim as development
 
-# Switch back to root for development
-USER root
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src \
+    DEBUG=true
 
-# Install development dependencies
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install UV
+RUN pip install uv
+
+# Set work directory
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install all dependencies including dev tools
 RUN uv pip install --system -e ".[dev]"
 
-# Switch back to app user
-USER app
+# Copy application code
+COPY . .
 
-# Development command with reload
-CMD ["uvicorn", "src.dfs_prophet.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/qdrant_storage
 
-# Production stage with multi-stage build
-FROM base as production
+# Expose port
+EXPOSE 8000
 
-# Copy only necessary files for production
-COPY --chown=app:app src/ ./src/
+# Default command for development
+CMD ["uvicorn", "dfs_prophet.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
-# Production command with multiple workers
-CMD ["gunicorn", "src.dfs_prophet.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001"]
+# Documentation stage
+FROM python:3.11-slim as docs
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install UV
+RUN pip install uv
+
+# Set work directory
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install documentation dependencies
+RUN uv pip install --system -e ".[docs]"
+
+# Copy documentation files
+COPY docs/ ./docs/
+COPY src/ ./src/
+COPY README.md ./
+
+# Build documentation
+RUN mkdocs build
+
+# Expose port for documentation server
+EXPOSE 8000
+
+# Default command for documentation
+CMD ["mkdocs", "serve", "--host", "0.0.0.0", "--port", "8000"]
+
+# Testing stage
+FROM python:3.11-slim as testing
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src \
+    TESTING=true
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install UV
+RUN pip install uv
+
+# Set work directory
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install all dependencies including test tools
+RUN uv pip install --system -e ".[dev]"
+
+# Copy application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/qdrant_storage
+
+# Run tests
+CMD ["pytest", "-v", "--cov=src/dfs_prophet", "--cov-report=html", "--cov-report=term"]

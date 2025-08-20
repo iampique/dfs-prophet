@@ -43,7 +43,7 @@ def _validate_environment() -> None:
     if settings.vector_db.vector_dimensions <= 0:
         raise RuntimeError("VECTOR_DB_VECTOR_DIMENSIONS must be > 0")
 
-    if settings.embedding.model_name is None or not str(settings.embedding.model_name).strip():
+    if not settings.embedding.model_name or not str(settings.embedding.model_name).strip():
         raise RuntimeError("EMBEDDING_MODEL_MODEL_NAME must be set")
 
     # Qdrant URL format check

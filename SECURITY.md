@@ -1,306 +1,122 @@
-# Security Guide
+# Security Policy
 
-This document outlines security best practices and guidelines for the DFS Prophet project.
+## Supported Versions
 
-## 🔒 Pre-Commit Security Checklist
+Use this section to tell people about which versions of your project are currently being supported with security updates.
 
-Before committing code, ensure you've completed this security checklist:
+| Version | Supported          |
+| ------- | ------------------ |
+| 0.1.x   | :white_check_mark: |
+| < 0.1   | :x:                |
 
-### ✅ Environment Variables
-- [ ] No `.env` files are being committed
-- [ ] No hardcoded API keys in source code
-- [ ] No database credentials in code
-- [ ] No Qdrant API keys in code
-- [ ] No AWS/Cloud credentials in code
+## Reporting a Vulnerability
 
-### ✅ Secrets and Credentials
-- [ ] No private keys or certificates
-- [ ] No SSH keys
-- [ ] No access tokens
-- [ ] No passwords in plain text
-- [ ] No API secrets
+We take the security of DFS Prophet seriously. If you believe you have found a security vulnerability, please report it to us as described below.
 
-### ✅ Data and Storage
-- [ ] No real user data
-- [ ] No production database dumps
-- [ ] No log files with sensitive info
-- [ ] No cache files with credentials
-- [ ] No temporary files with secrets
+### Reporting Process
 
-### ✅ Configuration Files
-- [ ] No production configs
-- [ ] No staging environment files
-- [ ] No local development secrets
-- [ ] No override files with credentials
+1. **Do not create a public GitHub issue** for the vulnerability.
+2. **Email us directly** at [security@dfsprophet.com](mailto:security@dfsprophet.com) with the subject line `[SECURITY] DFS Prophet Vulnerability Report`.
+3. **Include detailed information** about the vulnerability:
+   - Description of the issue
+   - Steps to reproduce
+   - Potential impact
+   - Suggested fix (if any)
+   - Your contact information
 
-## 🚨 Common Security Mistakes to Avoid
+### What to Expect
 
-### ❌ Never Commit These Files:
-```bash
-# Environment files (but .env.example SHOULD be committed)
-.env
-.env.local
-.env.production
-.env.staging
+- **Acknowledgement**: You will receive an acknowledgment within 48 hours
+- **Assessment**: We will assess the reported vulnerability within 7 days
+- **Updates**: We will keep you informed of our progress
+- **Resolution**: We will work to resolve the issue and release a fix
 
-# Credentials
-secrets.json
-credentials.yaml
-api_keys.txt
-private_key.pem
+### Responsible Disclosure
 
-# Database files
-*.db
-*.sqlite
-*.sqlite3
+We follow responsible disclosure practices:
+- We will not publicly disclose the vulnerability until a fix is available
+- We will credit you in the security advisory (unless you prefer to remain anonymous)
+- We will work with you to ensure the fix addresses the issue properly
 
-# Log files
-*.log
-logs/
+## Security Best Practices
 
-# Cache files
-.cache/
-*.cache
+### For Users
 
-# Temporary files
-*.tmp
-*.temp
-```
+1. **Keep Dependencies Updated**: Regularly update DFS Prophet and its dependencies
+2. **Use HTTPS**: Always use HTTPS in production environments
+3. **Secure Configuration**: Follow the security configuration guidelines in our documentation
+4. **Monitor Logs**: Regularly review application logs for suspicious activity
+5. **Access Control**: Implement proper authentication and authorization
 
-### ✅ Safe to Commit:
-```bash
-# Template files (safe to commit)
-.env.example
-config.example.yaml
-secrets.example.json
+### For Developers
 
-# Documentation
-README.md
-SECURITY.md
-CONTRIBUTING.md
+1. **Code Review**: All code changes must undergo security review
+2. **Dependency Scanning**: Regularly scan for vulnerable dependencies
+3. **Input Validation**: Always validate and sanitize user inputs
+4. **Error Handling**: Avoid exposing sensitive information in error messages
+5. **Testing**: Include security testing in the development process
 
-# Source code
-src/
-tests/
-scripts/
+## Security Features
 
-# Configuration files
-pyproject.toml
-docker-compose.yml
-Dockerfile
-```
-
-### ❌ Never Hardcode These in Source Code:
-```python
-# API Keys
-QDRANT_API_KEY = "your-actual-key-here"
-AWS_ACCESS_KEY = "AKIA..."
-GOOGLE_API_KEY = "AIza..."
-
-# Database Credentials
-DATABASE_URL = "postgresql://user:password@host:port/db"
-REDIS_PASSWORD = "your-redis-password"
-
-# Secrets
-JWT_SECRET = "your-jwt-secret"
-ENCRYPTION_KEY = "your-encryption-key"
-```
-
-## ✅ Security Best Practices
-
-### 1. Environment Variables
-Use environment variables for all sensitive configuration:
-
-```python
-# ✅ Good
-import os
-from dfs_prophet.config import get_settings
-
-settings = get_settings()
-qdrant_url = settings.qdrant.url
-api_key = settings.qdrant.api_key
-
-# ❌ Bad
-qdrant_url = "http://localhost:6333"
-api_key = "your-actual-key"
-```
-
-### 2. Configuration Management
-Use Pydantic Settings for type-safe configuration:
-
-```python
-# ✅ Good
-from pydantic_settings import BaseSettings
-
-class QdrantSettings(BaseSettings):
-    url: str = "http://localhost:6333"
-    api_key: str = ""
-    
-    class Config:
-        env_prefix = "QDRANT_"
-        env_file = ".env"
-
-# ❌ Bad
-qdrant_config = {
-    "url": "http://localhost:6333",
-    "api_key": "hardcoded-key"
-}
-```
-
-### 3. Secrets Management
-Use proper secrets management:
-
-```python
-# ✅ Good - Use environment variables
-QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-
-# ✅ Good - Use secrets manager in production
-import boto3
-secretsmanager = boto3.client('secretsmanager')
-secret = secretsmanager.get_secret_value(SecretId='dfs-prophet-secrets')
-
-# ❌ Bad - Hardcoded secrets
-QDRANT_API_KEY = "your-actual-secret-key"
-```
-
-## 🔍 Security Scanning
-
-### Pre-Commit Security Checks
-```bash
-# Run security scan before committing
-bandit -r src/ -f json -o security-report.json
-
-# Check for secrets in code
-git secrets --scan
-
-# Run safety check for dependencies
-safety check
-```
-
-### Automated Security Checks
-The CI/CD pipeline includes:
-- **Bandit**: Python security linter
-- **Safety**: Dependency vulnerability scanner
-- **Secret scanning**: Detects hardcoded secrets
-- **Dependency scanning**: Checks for known vulnerabilities
-
-## 🛡️ Security Tools
-
-### 1. Pre-commit Hooks
-Install pre-commit hooks to automatically check for security issues:
-
-```bash
-# Install pre-commit
-pip install pre-commit
-
-# Install hooks
-pre-commit install
-
-# Run manually
-pre-commit run --all-files
-```
-
-### 2. Git Secrets
-Install git-secrets to prevent committing secrets:
-
-```bash
-# Install git-secrets
-git secrets --install
-git secrets --register-aws
-
-# Scan repository
-git secrets --scan
-```
-
-### 3. TruffleHog
-Scan for secrets in git history:
-
-```bash
-# Install trufflehog
-pip install trufflehog
-
-# Scan repository
-trufflehog --regex --entropy=False .
-```
-
-## 🚨 Incident Response
-
-### If You Accidentally Commit Sensitive Data:
-
-1. **Immediate Actions:**
-   ```bash
-   # Remove the file from git history
-   git filter-branch --force --index-filter \
-     'git rm --cached --ignore-unmatch path/to/sensitive/file' \
-     --prune-empty --tag-name-filter cat -- --all
-   
-   # Force push to remove from remote
-   git push origin --force --all
-   ```
-
-2. **Rotate Credentials:**
-   - Change all exposed API keys
-   - Rotate database passwords
-   - Update access tokens
-   - Regenerate SSH keys if exposed
-
-3. **Notify Maintainer:**
-   - Inform maintainers immediately
-   - Document the incident
-   - Update security procedures
-
-## 📋 Security Checklist for New Features
-
-When adding new features, ensure:
-
-- [ ] No hardcoded credentials
-- [ ] Environment variables for configuration
-- [ ] Input validation and sanitization
-- [ ] Error handling without information disclosure
-- [ ] Proper authentication and authorization
-- [ ] Secure communication (HTTPS/TLS)
-- [ ] Rate limiting for API endpoints
-- [ ] Logging without sensitive data
-- [ ] Security headers in responses
-- [ ] CORS configuration
-- [ ] SQL injection prevention
-- [ ] XSS protection
-- [ ] CSRF protection
-
-## 🔐 Production Security
-
-### Environment Security
-- Use secrets management services (AWS Secrets Manager, HashiCorp Vault)
-- Enable encryption at rest and in transit
-- Use least privilege access principles
-- Regular security audits and penetration testing
+DFS Prophet includes several security features:
 
 ### API Security
-- Implement proper authentication (JWT, OAuth2)
-- Use HTTPS in production
-- Implement rate limiting
-- Add request/response validation
-- Monitor for suspicious activity
+- **Input Validation**: All API inputs are validated using Pydantic models
+- **Rate Limiting**: Built-in rate limiting to prevent abuse
+- **CORS Protection**: Configurable CORS settings for cross-origin requests
+- **Error Handling**: Secure error responses that don't leak sensitive information
 
 ### Data Security
-- Encrypt sensitive data
-- Implement data retention policies
-- Regular backups with encryption
-- Access logging and monitoring
+- **Vector Encryption**: Vector data can be encrypted at rest
+- **Secure Communication**: All external communications use HTTPS
+- **Access Logging**: Comprehensive logging of all data access
+- **Data Validation**: Strict validation of all data inputs and outputs
 
-## 📞 Security Contacts
+### Infrastructure Security
+- **Container Security**: Docker images are built with security best practices
+- **Network Security**: Configurable network policies and firewall rules
+- **Monitoring**: Security monitoring and alerting capabilities
+- **Backup Security**: Encrypted backups with secure key management
 
-- **Security Issues**: security@dfsprophet.com
-- **Bug Reports**: [GitHub Issues](https://github.com/iampique/dfs-prophet/issues)
-- **Responsible Disclosure**: Please report security vulnerabilities privately
+## Known Security Considerations
 
-## 📚 Security Resources
+### Vector Database Security
+- **Qdrant Security**: Follow Qdrant's security best practices
+- **API Key Management**: Secure storage and rotation of API keys
+- **Network Access**: Restrict network access to vector database instances
+- **Data Encryption**: Enable encryption for sensitive vector data
 
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [Python Security Best Practices](https://python-security.readthedocs.io/)
-- [FastAPI Security](https://fastapi.tiangolo.com/tutorial/security/)
-- [GitHub Security](https://docs.github.com/en/github/managing-security-vulnerabilities)
+### Embedding Model Security
+- **Model Validation**: Validate embedding models from trusted sources
+- **Input Sanitization**: Sanitize inputs to prevent injection attacks
+- **Output Validation**: Validate embedding outputs for consistency
+- **Model Updates**: Keep embedding models updated for security patches
 
----
+## Security Updates
 
-**Remember**: Security is everyone's responsibility. When in doubt, ask before committing!
+### Regular Updates
+- **Monthly Security Reviews**: Regular security assessments of the codebase
+- **Dependency Updates**: Automated dependency vulnerability scanning
+- **Security Patches**: Prompt release of security patches
+- **Security Advisories**: Public disclosure of security issues and fixes
+
+### Update Process
+1. **Vulnerability Assessment**: Evaluate the severity and impact
+2. **Fix Development**: Develop and test security fixes
+3. **Release Planning**: Plan the release of security updates
+4. **Public Disclosure**: Release security advisory and updates
+5. **Post-Release**: Monitor for any issues and provide support
+
+## Contact Information
+
+- **Security Email**: [security@dfsprophet.com](mailto:security@dfsprophet.com)
+- **PGP Key**: [security-pgp-key.asc](https://github.com/iampique/dfs-prophet/security-pgp-key.asc)
+- **Security Team**: DFS Prophet Security Team
+
+## Acknowledgments
+
+We would like to thank all security researchers and contributors who help keep DFS Prophet secure by reporting vulnerabilities and suggesting improvements.
+
+## License
+
+This security policy is part of the DFS Prophet project and is subject to the same MIT license as the rest of the project.

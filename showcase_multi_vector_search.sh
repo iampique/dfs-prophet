@@ -13,8 +13,8 @@ NC='\033[0m' # No Color
 # API base URL
 BASE_URL="http://localhost:8000/api/v1"
 
-echo -e "${BOLD}🚀 QDRANT VECTOR DATABASE BUSINESS VALUE SHOWCASE${NC}"
-echo "=================================================="
+echo -e "${BOLD}🚀 DFS Prophet - Multi-Vector AI Search Engine Showcase${NC}"
+echo "==============================================================="
 echo ""
 
 echo -e "${BOLD}📊 EXECUTIVE SUMMARY${NC}"

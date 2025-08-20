@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # Qdrant Vector Database
   qdrant:
     image: qdrant/qdrant:latest
     container_name: dfs-prophet-qdrant
@@ -9,93 +10,227 @@ services:
       - "6334:6334"
     volumes:
       - qdrant_storage:/qdrant/storage
+      - ./qdrant_config:/qdrant/config
     environment:
       - QDRANT__SERVICE__HTTP_PORT=6333
       - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__STORAGE__STORAGE_PATH=/qdrant/storage
+    networks:
+      - dfs-prophet-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 40s
 
+  # DFS Prophet API
   dfs-prophet:
     build:
       context: .
       dockerfile: Dockerfile
+      target: production
     container_name: dfs-prophet-api
     ports:
-      - "8001:8001"
-    environment:
-      - QDRANT_URL=http://qdrant:6333
-      - QDRANT_API_KEY=
-      - DEBUG=false
-      - LOG_LEVEL=INFO
-    depends_on:
-      qdrant:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/api/v1/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - "8000:8000"
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
+    environment:
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_API_KEY=
+      - VECTOR_DB_VECTOR_DIMENSIONS=768
+      - EMBEDDING_MODEL_MODEL_NAME=BAAI/bge-base-en-v1.5
+      - BINARY_QUANTIZATION_ENABLED=true
+      - BINARY_QUANTIZATION_ALWAYS_RAM=true
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    networks:
+      - dfs-prophet-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
-  # Optional: Redis for caching (uncomment if needed)
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: dfs-prophet-redis
-  #   ports:
-  #     - "6379:6379"
-  #   volumes:
-  #     - redis_data:/data
-  #   restart: unless-stopped
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: dfs-prophet-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - dfs-prophet-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    profiles:
+      - cache
 
-  # Optional: Prometheus for monitoring (uncomment if needed)
-  # prometheus:
-  #   image: prom/prometheus:latest
-  #   container_name: dfs-prophet-prometheus
-  #   ports:
-  #     - "9090:9090"
-  #   volumes:
-  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-  #     - prometheus_data:/prometheus
-  #   command:
-  #     - '--config.file=/etc/prometheus/prometheus.yml'
-  #     - '--storage.tsdb.path=/prometheus'
-  #     - '--web.console.libraries=/etc/prometheus/console_libraries'
-  #     - '--web.console.templates=/etc/prometheus/consoles'
-  #     - '--storage.tsdb.retention.time=200h'
-  #     - '--web.enable-lifecycle'
-  #   restart: unless-stopped
+  # Prometheus for monitoring (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: dfs-prophet-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - dfs-prophet-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
 
-  # Optional: Grafana for visualization (uncomment if needed)
-  # grafana:
-  #   image: grafana/grafana:latest
-  #   container_name: dfs-prophet-grafana
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - GF_SECURITY_ADMIN_PASSWORD=admin
-  #   volumes:
-  #     - grafana_data:/var/lib/grafana
-  #     - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
-  #     - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
-  #   restart: unless-stopped
+  # Grafana for dashboards (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: dfs-prophet-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    networks:
+      - dfs-prophet-network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    profiles:
+      - monitoring
 
+  # Nginx reverse proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: dfs-prophet-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - dfs-prophet
+    networks:
+      - dfs-prophet-network
+    restart: unless-stopped
+    profiles:
+      - proxy
+
+# Development services
+  # Development API with hot reload
+  dfs-prophet-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: dfs-prophet-api-dev
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_API_KEY=
+      - VECTOR_DB_VECTOR_DIMENSIONS=768
+      - EMBEDDING_MODEL_MODEL_NAME=BAAI/bge-base-en-v1.5
+      - BINARY_QUANTIZATION_ENABLED=true
+      - BINARY_QUANTIZATION_ALWAYS_RAM=true
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    networks:
+      - dfs-prophet-network
+    restart: unless-stopped
+    profiles:
+      - dev
+
+  # Documentation server
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: docs
+    container_name: dfs-prophet-docs
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./docs:/app/docs
+      - ./src:/app/src
+    networks:
+      - dfs-prophet-network
+    restart: unless-stopped
+    profiles:
+      - docs
+
+  # Testing environment
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: testing
+    container_name: dfs-prophet-test
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - TESTING=true
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_API_KEY=
+      - VECTOR_DB_VECTOR_DIMENSIONS=768
+      - EMBEDDING_MODEL_MODEL_NAME=BAAI/bge-base-en-v1.5
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    networks:
+      - dfs-prophet-network
+    profiles:
+      - test
+
+# Volumes
 volumes:
   qdrant_storage:
     driver: local
-  # redis_data:
-  #   driver: local
-  # prometheus_data:
-  #   driver: local
-  # grafana_data:
-  #   driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
 
+# Networks
 networks:
-  default:
-    name: dfs-prophet-network
+  dfs-prophet-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
