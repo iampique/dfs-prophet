@@ -1,6 +1,6 @@
 # 🚀 DFS Prophet - Multi-Vector AI Search Engine
 
-A cutting-edge Daily Fantasy Sports (DFS) platform powered by **Qdrant Vector Database** and **multi-vector AI architecture**. This project demonstrates how vector databases can transform search from exact keyword matching to semantic understanding.
+A cutting-edge Daily Fantasy Sports (DFS) platform powered by **Qdrant Vector Database** and **multi-vector AI architecture**. This work demonstrates how vector databases can transform search from exact keyword matching to semantic understanding.
 
 ## 🎯 **Key Features**
 
